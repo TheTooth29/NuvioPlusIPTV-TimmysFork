@@ -136,7 +136,7 @@
     <string name="error_stream_tried_generic">Tried stream addons: %1$s. Streams could not be loaded for id=%2$s (type=%3$s).</string>
     <string name="error_stream_tried_issues">Tried stream addons: %1$s. Streams could not be loaded for id=%2$s (type=%3$s). Issues: %4$s.</string>
 
-    <string name="continue_watching">Continue Watching</string>
+    <string name="continue_watching">CONTINUE WATCHING</string>
     <string name="cw_upcoming">Upcoming</string>
     <string name="cw_next_up">Next Up</string>
     <string name="cw_next_up_short">Next</string>
@@ -1087,7 +1087,7 @@
     <string name="layout_cw_sort_streaming_desc">Released items first, upcoming at the end</string>
     <string name="layout_cw_sort_split_upcoming">Separate Upcoming Row</string>
     <string name="layout_cw_sort_split_upcoming_desc">Move unaired episodes to a separate Upcoming row</string>
-    <string name="upcoming_section_title">Upcoming</string>
+    <string name="upcoming_section_title">UPCOMING</string>
     <string name="layout_trailer_button">Show Trailer Button</string>
     <string name="layout_trailer_button_sub">Show trailer button on detail page (only when trailer is available).</string>
     <string name="layout_trailer_play_in_background">Play in Background</string>
