@@ -46,6 +46,67 @@ jobs:
             touch local.dev.properties
           fi
 
+      - name: Write app keys
+        env:
+          NUVIO_BACKEND_URL: ${{ secrets.NUVIO_BACKEND_URL }}
+          NUVIO_BACKEND_KEY: ${{ secrets.NUVIO_BACKEND_KEY }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
+          SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
+          SIMKL_APP_NAME: ${{ secrets.SIMKL_APP_NAME }}
+          MDBLIST_CLIENT_ID: ${{ secrets.MDBLIST_CLIENT_ID }}
+          GOOGLE_DRIVE_CLIENT_ID: ${{ secrets.GOOGLE_DRIVE_CLIENT_ID }}
+          GOOGLE_DRIVE_CLIENT_SECRET: ${{ secrets.GOOGLE_DRIVE_CLIENT_SECRET }}
+          PREMIUMIZE_CLIENT_ID: ${{ secrets.PREMIUMIZE_CLIENT_ID }}
+          # IMDb ratings (episode ratings and the rating on details pages) come from Nuvio's
+          # ratings services; without these the app has nowhere to ask, so no ratings show.
+          IMDB_RATINGS_API_BASE_URL: ${{ secrets.IMDB_RATINGS_API_BASE_URL }}
+          IMDB_TAPFRAME_API_BASE_URL: ${{ secrets.IMDB_TAPFRAME_API_BASE_URL }}
+          # Skip intro: IntroDB (introdb.app), a free and open timestamp service (no key needed to
+          # read). A secret can point it elsewhere; otherwise the public address is used.
+          INTRODB_API_URL: ${{ secrets.INTRODB_API_URL }}
+        run: |
+          if [ -z "$NUVIO_BACKEND_URL" ] || [ -z "$NUVIO_BACKEND_KEY" ]; then
+            echo "::error::NUVIO_BACKEND_URL and NUVIO_BACKEND_KEY are required for the login QR code."
+            exit 1
+          fi
+          : > keys.properties
+          add() { if [ -n "$2" ]; then echo "$1=$2" >> keys.properties; fi; }
+          if [ -n "$NUVIO_BACKEND_URL" ]; then
+            BACKEND="${NUVIO_BACKEND_URL%/}"
+            add NUVIO_SUPABASE_URL "$BACKEND"
+            add NUVIO_SUPABASE_ANON_KEY "$NUVIO_BACKEND_KEY"
+            case "$BACKEND" in
+              *api.nuvio.tv*)
+                # Official Nuvio accounts: the app's built-in nuvio.tv login pages are already right.
+                ;;
+              *)
+                # Self-hosted server: its login pages live on the server itself.
+                add TV_LOGIN_WEB_BASE_URL "$BACKEND/tv-login"
+                add DEVICE_LOGIN_WEB_BASE_URL "$BACKEND/link"
+                add AVATAR_PUBLIC_BASE_URL "$BACKEND/storage/v1/object/public/avatars"
+                ;;
+            esac
+          fi
+          add TMDB_API_KEY "$TMDB_API_KEY"
+          add TRAKT_CLIENT_ID "$TRAKT_CLIENT_ID"
+          add TRAKT_CLIENT_SECRET "$TRAKT_CLIENT_SECRET"
+          add SIMKL_CLIENT_ID "$SIMKL_CLIENT_ID"
+          add SIMKL_APP_NAME "$SIMKL_APP_NAME"
+          add MDBLIST_CLIENT_ID "$MDBLIST_CLIENT_ID"
+          add GOOGLE_DRIVE_CLIENT_ID "$GOOGLE_DRIVE_CLIENT_ID"
+          add GOOGLE_DRIVE_CLIENT_SECRET "$GOOGLE_DRIVE_CLIENT_SECRET"
+          add PREMIUMIZE_CLIENT_ID "$PREMIUMIZE_CLIENT_ID"
+          add IMDB_RATINGS_API_BASE_URL "$IMDB_RATINGS_API_BASE_URL"
+          add IMDB_TAPFRAME_API_BASE_URL "$IMDB_TAPFRAME_API_BASE_URL"
+          add INTRODB_API_URL "${INTRODB_API_URL:-https://api.introdb.app/}"
+          # The build reads some values from each file, so write both.
+          cat keys.properties >> local.properties
+          cat keys.properties >> local.dev.properties
+          rm keys.properties
+          echo "Keys set:"; cut -d= -f1 local.properties
+
       - name: Prepare CI signing config
         run: |
           keytool -genkeypair \
