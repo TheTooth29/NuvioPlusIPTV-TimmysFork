@@ -142,7 +142,8 @@ fun ModernHomeContent(
     scrollToTopTrigger: Int = 0,
     onRequestLazyCatalogLoad: (String) -> Unit = {},
     onRowItemFocusedCallback: (String, Int, Boolean) -> Unit = { _, _, _ -> },
-    blockLeftOnFirstExpandedItem: Boolean = false
+    blockLeftOnFirstExpandedItem: Boolean = false,
+    rowsOnlyHomepage: Boolean = false
 ) {
     val onRowItemFocusedPassedDown = rememberUpdatedState(onRowItemFocusedCallback)
     val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
@@ -154,15 +155,15 @@ fun ModernHomeContent(
     val fullScreenBackdrop = uiState.modernHeroFullScreenBackdropEnabled
     val trailerPlaybackTarget = uiState.focusedPosterBackdropTrailerPlaybackTarget
     val effectiveAutoplayEnabled =
-        uiState.focusedPosterBackdropTrailerEnabled &&
+        !rowsOnlyHomepage && uiState.focusedPosterBackdropTrailerEnabled &&
             (useLandscapePosters || uiState.focusedPosterBackdropExpandEnabled)
     val landscapeExpandedCardMode =
         useLandscapePosters &&
             effectiveAutoplayEnabled &&
             trailerPlaybackTarget == FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD
     val effectiveExpandEnabled =
-        (uiState.focusedPosterBackdropExpandEnabled && !useLandscapePosters) ||
-            landscapeExpandedCardMode
+        !rowsOnlyHomepage && ((uiState.focusedPosterBackdropExpandEnabled && !useLandscapePosters) ||
+            landscapeExpandedCardMode)
     val shouldActivateFocusedPosterFlow =
         effectiveExpandEnabled ||
             (effectiveAutoplayEnabled &&
@@ -182,7 +183,7 @@ fun ModernHomeContent(
     }
 
     if (carouselRows.list.isEmpty()) {
-        if (uiState.heroSectionEnabled && uiState.heroItems.isNotEmpty()) {
+        if (!rowsOnlyHomepage && uiState.heroSectionEnabled && uiState.heroItems.isNotEmpty()) {
             Box(modifier = Modifier.fillMaxSize()) {
                 com.nuvio.tv.ui.components.HeroCarousel(
                     items = uiState.heroItems.asStable(),
@@ -1031,7 +1032,8 @@ fun ModernHomeContent(
             }
 
             val localDensity = LocalDensity.current
-            val rowsViewportHeightFraction = if (useLandscapePosters) 0.49f else 0.52f
+            // Only the root homepage uses the compact rows-only layout.
+            val rowsViewportHeightFraction = if (rowsOnlyHomepage) 0.90f else if (useLandscapePosters) 0.49f else 0.52f
             val rowsViewportHeight = remember(screenHeight, rowsViewportHeightFraction) { screenHeight * rowsViewportHeightFraction }
             val rowTitleLineHeight = MaterialTheme.typography.titleMedium.lineHeight
             val rowTitleHeight = remember(rowTitleLineHeight, localDensity) {
@@ -1100,7 +1102,7 @@ fun ModernHomeContent(
 
             // A collection cover belongs to its tile. Without explicit hero media,
             // omit the layer so its cached backdrop cannot linger above the row.
-            if (showHeroMedia) {
+            if (!rowsOnlyHomepage && showHeroMedia) {
                 ModernHeroSection(
                     heroSceneState = heroSceneStateLambda,
                     isFullScreen = isFullScreenLambda,
@@ -1130,6 +1132,7 @@ fun ModernHomeContent(
                     .fillMaxWidth(MODERN_HERO_TEXT_WIDTH_FRACTION)
             }
 
+            if (!rowsOnlyHomepage) {
             HeroTitleBlock(
                 previewProvider = {
                     val state = heroSceneStateLambda()
@@ -1153,6 +1156,8 @@ fun ModernHomeContent(
                 },
                 modifier = heroMetadataModifier
             )
+
+            }
 
             val latestOnFocusedRowKeyChanged by rememberUpdatedState(onFocusedRowKeyChanged)
             val onActiveRowKeyChangeLambda = remember {

@@ -676,6 +676,7 @@ private fun ModernHomeRoute(
         }
     }
     ModernHomeContent(
+        rowsOnlyHomepage = true,
         uiState = uiState,
         modernPresentation = modernPresentation,
         focusState = focusState,
