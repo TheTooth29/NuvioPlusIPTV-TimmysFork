@@ -1160,8 +1160,20 @@ fun ModernHomeContent(
             }
 
             val latestOnFocusedRowKeyChanged by rememberUpdatedState(onFocusedRowKeyChanged)
-            val onActiveRowKeyChangeLambda = remember {
+            val onActiveRowKeyChangeLambda = remember(rowsOnlyHomepage) {
                 { key: String? ->
+                    val previousRowKey = focusHolder.activeRowKey
+                    // Only the root homepage forgets horizontal progress when leaving a row.
+                    // Focus has already entered the new row, so resetting the old row cannot
+                    // move focus away from the user's destination.
+                    if (rowsOnlyHomepage && key != null &&
+                        previousRowKey != null && previousRowKey != key
+                    ) {
+                        focusedItemByRow[previousRowKey] = 0
+                        rowListStates[previousRowKey]?.let { previousRowState ->
+                            backScrollScope.launch { previousRowState.scrollToItem(0, 0) }
+                        }
+                    }
                     focusHolder.activeRowKey = key
                     activeRowKey.value = key
                     // saveFocusState only runs on dispose, which a system Home press never
