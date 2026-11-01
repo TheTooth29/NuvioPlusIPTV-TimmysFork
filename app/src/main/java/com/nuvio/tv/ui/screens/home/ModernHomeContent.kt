@@ -1093,15 +1093,24 @@ fun ModernHomeContent(
             }
             val onFirstFrameRenderedLambda = remember { { heroTrailerFirstFrameRendered = true } }
 
-            ModernHeroSection(
-                heroSceneState = heroSceneStateLambda,
-                isFullScreen = isFullScreenLambda,
-                heroMediaWidthPx = heroMediaWidthPx,
-                heroMediaHeightPx = heroMediaHeightPx,
-                modifier = heroMediaModifier,
-                onTrailerEnded = onTrailerEndedLambda,
-                onFirstFrameRendered = onFirstFrameRenderedLambda
-            )
+            val collectionHero = activeCarouselItemState.value?.payload as? ModernPayload.CollectionFolder
+            val showHeroMedia = collectionHero == null ||
+                !collectionHero.heroBackdropUrl.isNullOrBlank() ||
+                !collectionHero.heroVideoUrl.isNullOrBlank()
+
+            // A collection cover belongs to its tile. Without explicit hero media,
+            // omit the layer so its cached backdrop cannot linger above the row.
+            if (showHeroMedia) {
+                ModernHeroSection(
+                    heroSceneState = heroSceneStateLambda,
+                    isFullScreen = isFullScreenLambda,
+                    heroMediaWidthPx = heroMediaWidthPx,
+                    heroMediaHeightPx = heroMediaHeightPx,
+                    modifier = heroMediaModifier,
+                    onTrailerEnded = onTrailerEndedLambda,
+                    onFirstFrameRendered = onFirstFrameRenderedLambda
+                )
+            }
 
             // Fade content rows when ANY hero media (catalog trailer or collection
             // hero video) is playing in fullscreen — not just catalog trailers.
