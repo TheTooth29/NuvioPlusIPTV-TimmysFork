@@ -150,8 +150,11 @@ jobs:
 
           Owner-authorized update preparation; no separate issue.
           BODY
-          gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head "$BRANCH" --draft \
-            --title "Review IPTV update: $TAG" --body-file "$RUNNER_TEMP/update-pr.md" >> "$GITHUB_STEP_SUMMARY"
+          if ! gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head "$BRANCH" --draft \
+            --title "Review IPTV update: $TAG" --body-file "$RUNNER_TEMP/update-pr.md" >> "$GITHUB_STEP_SUMMARY"; then
+            echo "::warning::The update branch was prepared, but GitHub could not create its draft PR. The test APK build will still run."
+            echo "Open a pull request from $BRANCH into dev after reviewing the repository's Actions permissions." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   test-apk:
     needs: prepare
