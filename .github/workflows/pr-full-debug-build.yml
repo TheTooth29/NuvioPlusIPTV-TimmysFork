@@ -5,6 +5,11 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     branches: [dev]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      source_ref:
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -21,6 +26,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+
+      - name: Check personal customizations
+        run: python3 scripts/check-personal-customizations.py
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -102,6 +112,8 @@ jobs:
           add IMDB_TAPFRAME_API_BASE_URL "$IMDB_TAPFRAME_API_BASE_URL"
           add INTRODB_API_URL "${INTRODB_API_URL:-https://api.introdb.app/}"
           # The build reads some values from each file, so write both.
+          printf '\n' >> local.properties
+          printf '\n' >> local.dev.properties
           cat keys.properties >> local.properties
           cat keys.properties >> local.dev.properties
           rm keys.properties

@@ -1,0 +1,40 @@
+name: Validate personal update setup
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - ".github/workflows/**"
+      - "scripts/check-personal-customizations.py"
+      - "CUSTOMIZATIONS.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check retained customizations
+        run: python3 scripts/check-personal-customizations.py
+      - name: Validate workflow YAML and shell syntax
+        run: |
+          ruby <<'RUBY'
+          require "yaml"
+          require "open3"
+          paths = [".github/workflows/sync-nuvio-releases.yml", ".github/workflows/pr-full-debug-build.yml"]
+          paths.each do |path|
+            workflow = YAML.load_file(path, aliases: true)
+            raise "#{path}: missing jobs" unless workflow["jobs"].is_a?(Hash)
+            workflow["jobs"].each_value do |job|
+              (job["steps"] || []).each do |step|
+                next unless step["run"]
+                output, status = Open3.capture2e("bash", "-n", stdin_data: step["run"])
+                raise "#{path}, #{step["name"]}: #{output}" unless status.success?
+              end
+            end
+            puts "#{path}: YAML and shell syntax passed"
+          end
+          RUBY
