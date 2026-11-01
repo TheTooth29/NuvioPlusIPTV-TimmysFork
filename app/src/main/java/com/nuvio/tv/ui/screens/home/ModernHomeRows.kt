@@ -538,24 +538,8 @@ internal fun ModernRowSection(
             } else Modifier
         )
     ) {
-        val titleMediumStyle = MaterialTheme.typography.titleMedium
-        val rowTitleStyle = remember(titleMediumStyle) {
-            titleMediumStyle.copy(fontWeight = FontWeight.SemiBold)
-        }
-        val rowTitle = row.title
-        val textColor = NuvioTheme.colors.TextPrimary
-        val textModifier = remember(rowTitleBottom) {
-            Modifier.padding(start = 52.dp, bottom = rowTitleBottom)
-        }
-        Row(modifier = textModifier, verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = rowTitle,
-                style = rowTitleStyle.copy(textDirection = rowTitle.contentTextDirection()),
-                color = textColor
-            )
-            // Live TV fork: "Live TV ▲" hint when this is the top row.
-            com.nuvio.tv.livetv.home.LiveTvHomeHint()
-        }
+        // Keep internal row titles/keys, but omit visible headings and their padding.
+        com.nuvio.tv.livetv.home.LiveTvHomeHint()
 
         val rowListState = rowListStates.getOrPut(row.key) {
             // Resolved when the row is built, so a refresh that already moved the card is seen.

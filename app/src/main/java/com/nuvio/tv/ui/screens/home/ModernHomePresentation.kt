@@ -48,6 +48,88 @@ internal fun buildModernHomePresentation(
         val catalogRowLimit = maxCatalogRows?.coerceAtLeast(0)
         var renderedCatalogRows = 0
 
+        if (input.continueWatchingItems.isNotEmpty()) {
+            val reuseContinueWatchingRow =
+                cache.continueWatchingRow != null &&
+                    cache.continueWatchingItems == input.continueWatchingItems &&
+                    cache.continueWatchingTitle == strContinueWatching &&
+                    cache.continueWatchingAirsDateTemplate == strAirsDate &&
+                    cache.continueWatchingUpcomingLabel == strUpcoming &&
+                    cache.continueWatchingUseLandscapePosters == input.useLandscapePosters &&
+                    cache.continueWatchingShowImdbRatings == input.showImdbRatings
+            val continueWatchingRow = if (reuseContinueWatchingRow) {
+                checkNotNull(cache.continueWatchingRow)
+            } else {
+                HeroCarouselRow(
+                    key = MODERN_CONTINUE_WATCHING_ROW_KEY,
+                    title = strContinueWatching,
+                    globalRowIndex = -1,
+                    items = input.continueWatchingItems.map { item ->
+                        buildContinueWatchingItem(
+                            item = item,
+                            useLandscapePosters = input.useLandscapePosters,
+                            showImdbRatings = input.showImdbRatings,
+                            detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
+                            airsDateTemplate = strAirsDate,
+                            upcomingLabel = strUpcoming,
+                            context = localizedContext
+                        )
+                    }.asStable()
+                )
+            }
+            cache.continueWatchingItems = input.continueWatchingItems
+            cache.continueWatchingTitle = strContinueWatching
+            cache.continueWatchingAirsDateTemplate = strAirsDate
+            cache.continueWatchingUpcomingLabel = strUpcoming
+            cache.continueWatchingUseLandscapePosters = input.useLandscapePosters
+            cache.continueWatchingShowImdbRatings = input.showImdbRatings
+            cache.continueWatchingRow = continueWatchingRow
+            add(continueWatchingRow)
+        } else {
+            cache.continueWatchingItems = emptyList()
+            cache.continueWatchingRow = null
+        }
+
+        // Upcoming row (SPLIT_UPCOMING mode)
+        val strUpcomingSectionTitle = localizedContext.getString(R.string.upcoming_section_title)
+        if (input.upcomingItems.isNotEmpty()) {
+            val reuseUpcomingRow =
+                cache.upcomingRow != null &&
+                    cache.upcomingItems == input.upcomingItems &&
+                    cache.upcomingTitle == strUpcomingSectionTitle &&
+                    cache.upcomingUseLandscapePosters == input.useLandscapePosters &&
+                    cache.upcomingShowImdbRatings == input.showImdbRatings
+            val upcomingRow = if (reuseUpcomingRow) {
+                checkNotNull(cache.upcomingRow)
+            } else {
+                HeroCarouselRow(
+                    key = MODERN_UPCOMING_ROW_KEY,
+                    title = strUpcomingSectionTitle,
+                    globalRowIndex = -1,
+                    items = input.upcomingItems.map { item ->
+                        buildContinueWatchingItem(
+                            item = item,
+                            useLandscapePosters = input.useLandscapePosters,
+                            showImdbRatings = input.showImdbRatings,
+                            detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
+                            airsDateTemplate = strAirsDate,
+                            upcomingLabel = strUpcoming,
+                            context = localizedContext
+                        )
+                    }.asStable()
+                )
+            }
+            cache.upcomingItems = input.upcomingItems
+            cache.upcomingTitle = strUpcomingSectionTitle
+            cache.upcomingUseLandscapePosters = input.useLandscapePosters
+            cache.upcomingShowImdbRatings = input.showImdbRatings
+            cache.upcomingRow = upcomingRow
+            add(upcomingRow)
+        } else {
+            cache.upcomingItems = emptyList()
+            cache.upcomingRow = null
+        }
+
         visibleHomeRows.forEachIndexed { index, homeRow ->
             when (homeRow) {
                 is HomeRow.Catalog -> {
@@ -239,89 +321,6 @@ internal fun buildModernHomePresentation(
                     add(placeholderRow)
                 }
             }
-        }
-
-        // Personal layout: collections/catalogs first, then Continue Watching and Upcoming.
-        if (input.continueWatchingItems.isNotEmpty()) {
-            val reuseContinueWatchingRow =
-                cache.continueWatchingRow != null &&
-                    cache.continueWatchingItems == input.continueWatchingItems &&
-                    cache.continueWatchingTitle == strContinueWatching &&
-                    cache.continueWatchingAirsDateTemplate == strAirsDate &&
-                    cache.continueWatchingUpcomingLabel == strUpcoming &&
-                    cache.continueWatchingUseLandscapePosters == input.useLandscapePosters &&
-                    cache.continueWatchingShowImdbRatings == input.showImdbRatings
-            val continueWatchingRow = if (reuseContinueWatchingRow) {
-                checkNotNull(cache.continueWatchingRow)
-            } else {
-                HeroCarouselRow(
-                    key = MODERN_CONTINUE_WATCHING_ROW_KEY,
-                    title = strContinueWatching,
-                    globalRowIndex = -1,
-                    items = input.continueWatchingItems.map { item ->
-                        buildContinueWatchingItem(
-                            item = item,
-                            useLandscapePosters = input.useLandscapePosters,
-                            showImdbRatings = input.showImdbRatings,
-                            detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
-                            airsDateTemplate = strAirsDate,
-                            upcomingLabel = strUpcoming,
-                            context = localizedContext
-                        )
-                    }.asStable()
-                )
-            }
-            cache.continueWatchingItems = input.continueWatchingItems
-            cache.continueWatchingTitle = strContinueWatching
-            cache.continueWatchingAirsDateTemplate = strAirsDate
-            cache.continueWatchingUpcomingLabel = strUpcoming
-            cache.continueWatchingUseLandscapePosters = input.useLandscapePosters
-            cache.continueWatchingShowImdbRatings = input.showImdbRatings
-            cache.continueWatchingRow = continueWatchingRow
-            add(continueWatchingRow)
-        } else {
-            cache.continueWatchingItems = emptyList()
-            cache.continueWatchingRow = null
-        }
-
-        // Upcoming row (SPLIT_UPCOMING mode)
-        val strUpcomingSectionTitle = localizedContext.getString(R.string.upcoming_section_title)
-        if (input.upcomingItems.isNotEmpty()) {
-            val reuseUpcomingRow =
-                cache.upcomingRow != null &&
-                    cache.upcomingItems == input.upcomingItems &&
-                    cache.upcomingTitle == strUpcomingSectionTitle &&
-                    cache.upcomingUseLandscapePosters == input.useLandscapePosters &&
-                    cache.upcomingShowImdbRatings == input.showImdbRatings
-            val upcomingRow = if (reuseUpcomingRow) {
-                checkNotNull(cache.upcomingRow)
-            } else {
-                HeroCarouselRow(
-                    key = MODERN_UPCOMING_ROW_KEY,
-                    title = strUpcomingSectionTitle,
-                    globalRowIndex = -1,
-                    items = input.upcomingItems.map { item ->
-                        buildContinueWatchingItem(
-                            item = item,
-                            useLandscapePosters = input.useLandscapePosters,
-                            showImdbRatings = input.showImdbRatings,
-                            detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
-                            airsDateTemplate = strAirsDate,
-                            upcomingLabel = strUpcoming,
-                            context = localizedContext
-                        )
-                    }.asStable()
-                )
-            }
-            cache.upcomingItems = input.upcomingItems
-            cache.upcomingTitle = strUpcomingSectionTitle
-            cache.upcomingUseLandscapePosters = input.useLandscapePosters
-            cache.upcomingShowImdbRatings = input.showImdbRatings
-            cache.upcomingRow = upcomingRow
-            add(upcomingRow)
-        } else {
-            cache.upcomingItems = emptyList()
-            cache.upcomingRow = null
         }
 
         cache.catalogRows.keys.retainAll(activeCatalogKeys)

@@ -483,7 +483,13 @@ fun ModernHomeContent(
 
         val hadActiveRow = focusHolder.activeRowKey != null
         val existingActive = focusHolder.activeRowKey?.let { rowByKey[it] }
-        val firstRow = carouselRows.list.firstOrNull()
+        // Fresh launch starts at Discover; saved navigation above still takes priority.
+        val firstRow = carouselRows.list.firstOrNull {
+            it.items.list.firstOrNull()?.payload is ModernPayload.CollectionFolder &&
+                it.title.trim().equals("Discover", ignoreCase = true)
+        } ?: carouselRows.list.firstOrNull {
+            it.items.list.firstOrNull()?.payload is ModernPayload.CollectionFolder
+        } ?: carouselRows.list.firstOrNull().takeUnless { uiState.isLoading }
 
         val resolvedActive = when {
             existingActive != null -> existingActive
@@ -504,6 +510,9 @@ fun ModernHomeContent(
                 ?: resolvedActive.items.firstOrNull()?.heroPreview
 
             if (!focusState.hasSavedFocus && !hadActiveRow) {
+                // Compose the target row before asking its card to take focus.
+                val launchRowIndex = carouselRows.list.indexOfFirst { it.key == resolvedActive.key }
+                if (launchRowIndex >= 0) verticalRowListState.scrollToItem(launchRowIndex)
                 initialAutoSelectedKey = resolvedActive.key
                 pendingRowFocusKey.value = resolvedActive.key
                 pendingRowFocusIndex.value = resolvedIndex
@@ -1043,7 +1052,7 @@ fun ModernHomeContent(
             }
             val heroBackdropHeight = remember(screenHeight, rowsViewportHeight, rowTitleHeight) { (screenHeight - rowsViewportHeight + rowTitleHeight + 14.dp).coerceAtMost(screenHeight) }
             val verticalRowBringIntoViewSpec = remember(localDensity, defaultBringIntoViewSpec) {
-                val topInsetPx = with(localDensity) { MODERN_ROW_HEADER_FOCUS_INSET.toPx() }
+                val topInsetPx = 0f // Row headings are hidden; align cards directly.
                 @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
                 object : BringIntoViewSpec {
                     override val scrollAnimationSpec: AnimationSpec<Float> = defaultBringIntoViewSpec.scrollAnimationSpec
