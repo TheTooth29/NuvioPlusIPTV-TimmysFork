@@ -4,6 +4,9 @@ The integration branch is `dev`. Upstream is `homelessbrian/NuvioPlusIPTV`, whic
 
 ## Keep these customizations
 
+- Full app launcher branding is TIMIO; test builds append Test. Package IDs, signing and updater repository stay unchanged.
+- Root Modern homepage uses rowsOnlyHomepage: rows at 10% from top, no hero media/metadata, blue-charcoal gradient, pinned TIMIO wordmark, 15sp/22sp row headings and subtle collection borders. Collection drill-down layouts retain original defaults. Leaving a homepage row resets its horizontal position.
+
 - Modern home collection tiles with blank Hero Backdrop and Hero Video fields do not render hero media. Tile covers and focus GIFs remain. Explicit collection hero media is allowed.
 - English top-row labels remain `CONTINUE WATCHING` and `UPCOMING`.
 - The in-app updater uses `TheTooth29/NuvioPlusIPTV-TimmysFork`, not the upstream repositories.

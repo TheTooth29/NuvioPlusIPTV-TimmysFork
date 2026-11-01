@@ -60,6 +60,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.zIndex
 import com.nuvio.tv.R
 import androidx.tv.material3.Border
@@ -698,7 +700,20 @@ fun ModernHomeContent(
     val screenWidth = localConfiguration.screenWidthDp.dp
     val screenHeight = localConfiguration.screenHeightDp.dp
 
-    Box(modifier = Modifier.fillMaxSize().background(NuvioTheme.colors.Background)) {
+    val homepageBackground = if (rowsOnlyHomepage) {
+        Modifier.background(Brush.verticalGradient(listOf(Color(0xFF142638), Color(0xFF0B151F), Color(0xFF060B10))))
+    } else Modifier.background(NuvioTheme.colors.Background)
+    Box(modifier = Modifier.fillMaxSize().then(homepageBackground)) {
+        if (rowsOnlyHomepage) {
+            Text(
+                text = "TIMIO",
+                color = Color(0xDDEAF1F8),
+                fontSize = 22.sp,
+                letterSpacing = 4.sp,
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .padding(top = 12.dp, end = 32.dp).zIndex(2f)
+            )
+        }
             val posterCardCornerRadius = remember(uiState.posterCardCornerRadiusDp) { uiState.posterCardCornerRadiusDp.dp }
             val rowHorizontalPadding = 52.dp
 
@@ -1218,6 +1233,7 @@ fun ModernHomeContent(
             val stableOnPreloadAdjacentItem = remember(onPreloadAdjacentItem) { { item: MetaPreview -> onPreloadAdjacentItem(item) } }
 
             ModernHomeRowsList(
+                rowsOnlyHomepage = rowsOnlyHomepage,
                 carouselRows = carouselRows,
                 verticalRowListState = verticalRowListState,
                 focusedItemByRow = stableFocusedItemByRow,

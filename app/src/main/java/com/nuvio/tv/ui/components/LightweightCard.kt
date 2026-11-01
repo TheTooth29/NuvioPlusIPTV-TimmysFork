@@ -72,6 +72,7 @@ fun LightweightCard(
     modifier: Modifier = Modifier,
     focusedBorder: Border = Border.None,
     focusedGlow: Glow = Glow.None,
+    unfocusedBorder: Border = Border.None,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -81,7 +82,7 @@ fun LightweightCard(
         targetValue = if (focused) FOCUSED_Z_INDEX else NON_FOCUSED_Z_INDEX,
         label = "zIndex"
     )
-    val border = if (focused || pressed) focusedBorder else Border.None
+    val border = if (focused || pressed) focusedBorder else unfocusedBorder
     val glow = if (focused && !pressed) focusedGlow else Glow.None
     val glowColor = if (glow.elevationColor == MaterialTheme.colorScheme.surface) {
         MaterialTheme.colorScheme.surfaceColorAtElevation(glow.elevation)

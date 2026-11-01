@@ -147,6 +147,8 @@ private const val MODERN_HORIZONTAL_FOCUS_DEBOUNCE_MS = 140L
 private const val POSTER_PREFETCH_DISTANCE = 1
 private const val NESTED_PREFETCH_COUNT = 2
 
+internal val LocalHomepageTileStyling = compositionLocalOf { false }
+
 internal val LocalVerticalRowsScrolling = compositionLocalOf<State<Boolean>> { mutableStateOf(false) }
 
 /**
@@ -539,8 +541,11 @@ internal fun ModernRowSection(
         )
     ) {
         val titleMediumStyle = MaterialTheme.typography.titleMedium
-        val rowTitleStyle = remember(titleMediumStyle) {
-            titleMediumStyle.copy(fontWeight = FontWeight.SemiBold)
+        val homepageStyling = LocalHomepageTileStyling.current
+        val rowTitleStyle = remember(titleMediumStyle, homepageStyling) {
+            if (homepageStyling) titleMediumStyle.copy(
+                fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 22.sp
+            ) else titleMediumStyle.copy(fontWeight = FontWeight.SemiBold)
         }
         val rowTitle = row.title
         val textColor = NuvioTheme.colors.TextPrimary
@@ -1370,6 +1375,9 @@ private fun ModernCarouselCard(
                 },
             shape = cardShape,
             containerColor = backgroundCardColor,
+            unfocusedBorder = if (LocalHomepageTileStyling.current && isCollectionFolder) Border(
+                border = BorderStroke(1.dp, Color(0xFF344859)), shape = cardShape
+            ) else Border.None,
             focusedBorder = effectiveFocusedBorder,
             focusedGlow = effectiveFocusGlow
         ) {

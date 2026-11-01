@@ -76,6 +76,7 @@ import kotlinx.coroutines.withContext
 )
 @Composable
 internal fun ModernHomeRowsList(
+    rowsOnlyHomepage: Boolean = false,
     isVerticalRowsScrollingState: State<Boolean>,
     carouselRows: StableList<HeroCarouselRow>,
     verticalRowListState: LazyListState,
@@ -279,6 +280,7 @@ internal fun ModernHomeRowsList(
 
     CompositionLocalProvider(
         LocalBringIntoViewSpec provides verticalRowBringIntoViewSpec,
+        LocalHomepageTileStyling provides rowsOnlyHomepage,
         LocalFastScrollActive provides isFastScrolling,
         LocalVerticalRowsScrolling provides isVerticalRowsScrollingState
     ) {
