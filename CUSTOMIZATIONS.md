@@ -4,6 +4,9 @@ The integration branch is `dev`. Upstream is `homelessbrian/NuvioPlusIPTV`, whic
 
 ## Keep these customizations
 
+- Modern home renders collections/catalogs in their configured order, followed by Continue Watching and Upcoming. With the current collections this is Discover, Streaming Platforms, Decades, Continue Watching, Upcoming.
+- Modern home rows start 25% down the screen (`rowsViewportHeightFraction = 0.75f`), independent of TV size.
+
 - Modern home collection tiles with blank Hero Backdrop and Hero Video fields do not render hero media. Tile covers and focus GIFs remain. Explicit collection hero media is allowed.
 - English top-row labels remain `CONTINUE WATCHING` and `UPCOMING`.
 - The in-app updater uses `TheTooth29/NuvioPlusIPTV-TimmysFork`, not the upstream repositories.
