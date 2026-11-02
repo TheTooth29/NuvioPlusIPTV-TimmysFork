@@ -15,6 +15,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -705,13 +706,13 @@ fun ModernHomeContent(
     } else Modifier.background(NuvioTheme.colors.Background)
     Box(modifier = Modifier.fillMaxSize().then(homepageBackground)) {
         if (rowsOnlyHomepage) {
-            Text(
-                text = "TIMIO",
-                color = Color(0xDDEAF1F8),
-                fontSize = 22.sp,
-                letterSpacing = 4.sp,
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(com.nuvio.tv.R.drawable.timio_wordmark),
+                contentDescription = "TIMIO",
                 modifier = Modifier.align(Alignment.TopEnd)
-                    .padding(top = 12.dp, end = 32.dp).zIndex(2f)
+                    .padding(top = 10.dp, end = 32.dp)
+                    .then(Modifier.size(width = 180.dp, height = 44.dp))
+                    .zIndex(2f)
             )
         }
             val posterCardCornerRadius = remember(uiState.posterCardCornerRadiusDp) { uiState.posterCardCornerRadiusDp.dp }

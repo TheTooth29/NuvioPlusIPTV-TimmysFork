@@ -147,7 +147,8 @@ fun ContinueWatchingSection(
     imageHeight: Dp = 162.dp,
     cardStyle: ContinueWatchingCardStyle = ContinueWatchingCardStyle.CARD,
     cornerRadius: Dp = NuvioTheme.radii.md,
-    posterTitleOverride: TextStyle? = null
+    posterTitleOverride: TextStyle? = null,
+    homepageTileBorder: Boolean = false
 ) {
     if (items.isEmpty()) return
 
@@ -665,6 +666,9 @@ fun ContinueWatchingCard(
             },
         shape = cwCardShape,
         containerColor = Color.Transparent,
+        unfocusedBorder = if (homepageTileBorder && !textBelowArtwork) Border(
+            border = BorderStroke(1.dp, Color(0xFF344859)), shape = cwCardShape
+        ) else Border.None,
         // With text under the artwork the card border would ring the text too, so the artwork draws its own.
         focusedBorder = if (textBelowArtwork) {
             Border.None
@@ -736,9 +740,10 @@ fun ContinueWatchingCard(
                     )
                     .clip(cwClipShape)
                     .then(
-                        if (textBelowArtwork && isFocused) {
+                        if (textBelowArtwork && (isFocused || homepageTileBorder)) {
                             Modifier.border(
-                                border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs),
+                                border = if (isFocused) NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs)
+                                    else BorderStroke(1.dp, Color(0xFF344859)),
                                 shape = cwClipShape
                             )
                         } else {

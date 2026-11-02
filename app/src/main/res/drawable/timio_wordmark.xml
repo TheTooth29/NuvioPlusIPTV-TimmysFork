@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="180dp" android:height="44dp"
+    android:viewportWidth="180" android:viewportHeight="44">
+    <!-- Angular, open-stroke TIMIO lettering; scalable at TV resolution. -->
+    <path android:strokeColor="#EAF4FF" android:strokeWidth="4"
+        android:strokeLineJoin="miter" android:strokeLineCap="square"
+        android:pathData="M5,8 L35,8 M20,8 L20,32 M47,8 L47,32 M61,32 L61,8 L65,8 L77,22 L89,8 L93,8 L93,32 M107,8 L107,32 M127,8 L153,8 L159,14 L159,26 L153,32 L127,32 L121,26 L121,14 Z"/>
+    <path android:strokeColor="#58CFFF" android:strokeWidth="2"
+        android:pathData="M5,39 L111,39 L117,35 M126,39 L161,39 L174,26 M166,8 L174,8 L174,17"/>
+</vector>

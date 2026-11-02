@@ -214,6 +214,7 @@ private fun ModernContinueWatchingRowItem(
         useEpisodeThumbnails = useEpisodeThumbnails,
         cardStyle = continueWatchingCardStyle,
         cornerRadius = continueWatchingCornerRadius,
+        homepageTileBorder = LocalHomepageTileStyling.current,
         isFocused = isCardFocused,
         modifier = modifier
             .focusRequester(requester)
