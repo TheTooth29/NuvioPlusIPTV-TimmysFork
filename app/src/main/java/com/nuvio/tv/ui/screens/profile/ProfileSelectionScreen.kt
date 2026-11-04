@@ -7,7 +7,7 @@ import com.nuvio.tv.ui.theme.NuvioMotion
 
 import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.ui.theme.ThemeColors
-import com.nuvio.tv.ui.theme.brandWordmarkResource
+import com.nuvio.tv.ui.theme.flickShoBackground
 import com.nuvio.tv.ui.theme.createFocusRingStyle
 
 import android.graphics.Rect
@@ -46,7 +46,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -128,7 +127,7 @@ import kotlinx.coroutines.delay
 private object ProfileSelectionSpacing {
     val ScreenPaddingHorizontal = NuvioTheme.spacing.huge
     val ScreenPaddingVertical = NuvioTheme.spacing.xxxl
-    val LogoHeight = 44.dp
+    val LogoHeight = 100.dp
     val LogoToHeading = 28.dp
     val HeadingToSubheading = NuvioTheme.spacing.md
     val GridItemGap = 28.dp
@@ -145,8 +144,6 @@ private object ProfileSelectionSpacing {
     val CompactFocusedOuterAvatarSize = 104.dp
     val AvatarToName = NuvioTheme.spacing.md
     val CompactAvatarToName = 10.dp
-    val NameToMeta = NuvioTheme.spacing.sm
-    val MetaSlotHeight = NuvioTheme.spacing.lg
     val EditorPanelMaxWidth = 980.dp
     val EditorPanelGap = 28.dp
     val EditorPreviewWidth = 280.dp
@@ -251,11 +248,6 @@ fun ProfileSelectionScreen(
     }
     val focusedProfile = profiles.firstOrNull { it.id == focusedProfileId }
     val profileThemes by viewModel.profileThemes.collectAsState()
-    val focusedBrandWordmarkRes = remember(focusedProfileId, profileThemes) {
-        val pid = focusedProfileId ?: return@remember null
-        val theme = profileThemes[pid]
-        theme?.brandWordmarkResource
-    }
     val selectProfile: (Int) -> Unit = { profileId ->
         if (!viewModel.isSelectingProfile) {
             onProfileClicked()
@@ -270,10 +262,11 @@ fun ProfileSelectionScreen(
         }
     }
     val isManagementMode = screenMode == ProfileSelectionMode.Management
+    val displayedProfiles = remember(profiles) { profiles.sortedByDescending(UserProfile::isPrimary) }
     val screenTitle = if (isManagementMode) {
         stringResource(R.string.profile_manage_title)
     } else {
-        stringResource(R.string.profile_selection_title)
+        null
     }
     val screenSubtitle = if (isManagementMode) {
         stringResource(R.string.profile_manage_subtitle)
@@ -283,7 +276,7 @@ fun ProfileSelectionScreen(
     val screenHint = if (isManagementMode) {
         stringResource(R.string.profile_manage_hint)
     } else {
-        stringResource(R.string.profile_selection_hint)
+        null
     }
 
     if (onBackPress != null) {
@@ -359,10 +352,14 @@ fun ProfileSelectionScreen(
             onProfileThemeFocused?.invoke(theme)
         }
 
-        ProfileSelectionBackground(
-            focusedAvatarColor = overlayProfileColor ?: focusedAvatarColor,
-            profileBackground = profileBackground
-        )
+        if (isManagementMode) {
+            ProfileSelectionBackground(
+                focusedAvatarColor = overlayProfileColor ?: focusedAvatarColor,
+                profileBackground = profileBackground
+            )
+        } else {
+            Box(Modifier.fillMaxSize().background(flickShoBackground()))
+        }
 
         AnimatedContent(
             targetState = pinOverlayState,
@@ -390,12 +387,11 @@ fun ProfileSelectionScreen(
                     screenSubtitle = screenSubtitle,
                     screenHint = screenHint,
                     isManagementMode = isManagementMode,
-                    profiles = profiles,
+                    profiles = displayedProfiles,
                     activeProfileId = activeProfileId,
-                    canAddProfile = viewModel.canAddProfile,
+                    canAddProfile = isManagementMode && viewModel.canAddProfile,
                     profilePinEnabled = profilePinEnabled,
                     avatarImageUrlsById = avatarImageUrlsById,
-                    brandWordmarkRes = focusedBrandWordmarkRes,
                     profileThemes = profileThemes,
                     onProfileFocused = onProfileFocusedChange,
                     onProfileSelected = { profile ->
@@ -887,16 +883,15 @@ private fun ProfileSelectionBackground(
 
 @Composable
 private fun ProfileSelectionMainContent(
-    screenTitle: String,
+    screenTitle: String?,
     screenSubtitle: String,
-    screenHint: String,
+    screenHint: String?,
     isManagementMode: Boolean,
     profiles: List<UserProfile>,
     activeProfileId: Int,
     canAddProfile: Boolean,
     profilePinEnabled: Map<Int, Boolean>,
     avatarImageUrlsById: Map<String, String>,
-    brandWordmarkRes: Int? = null,
     profileThemes: Map<Int, com.nuvio.tv.domain.model.AppTheme> = emptyMap(),
     onProfileFocused: (UserProfile?) -> Unit,
     onProfileSelected: (UserProfile) -> Unit,
@@ -914,21 +909,23 @@ private fun ProfileSelectionMainContent(
     ) {
         MemberBrandWordmark(
             height = ProfileSelectionSpacing.LogoHeight,
-            contentDescription = stringResource(R.string.cd_nuvio_logo),
-            drawableOverride = brandWordmarkRes
+            contentDescription = "flickSHO",
+            drawableOverride = R.drawable.flicksho_logo
         )
 
         Spacer(modifier = Modifier.height(ProfileSelectionSpacing.LogoToHeading))
 
-        Text(
-            text = screenTitle,
-            color = NuvioTheme.colors.TextPrimary,
-            fontSize = 44.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = (-0.5).sp
-        )
+        if (screenTitle != null) {
+            Text(
+                text = screenTitle,
+                color = NuvioTheme.colors.TextPrimary,
+                fontSize = 44.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.5).sp
+            )
 
-        Spacer(modifier = Modifier.height(ProfileSelectionSpacing.HeadingToSubheading))
+            Spacer(modifier = Modifier.height(ProfileSelectionSpacing.HeadingToSubheading))
+        }
 
         Text(
             text = screenSubtitle,
@@ -955,12 +952,14 @@ private fun ProfileSelectionMainContent(
 
         Spacer(modifier = Modifier.weight(1f, fill = true))
 
-        Text(
-            text = screenHint,
-            color = NuvioTheme.colors.TextTertiary.copy(alpha = 0.9f),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
-        )
+        if (screenHint != null) {
+            Text(
+                text = screenHint,
+                color = NuvioTheme.colors.TextTertiary.copy(alpha = 0.9f),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
@@ -1038,7 +1037,7 @@ private fun ProfileGrid(
                         profileTheme = profileThemes[profile.id],
                         onFocused = { onProfileFocused(profile) },
                         onClick = { onProfileSelected(profile) },
-                        onLongPress = { onProfileLongPress(profile) }
+                        onLongPress = if (isManagementMode) ({ onProfileLongPress(profile) }) else null
                     )
                 }
                 if (canAddProfile) {
@@ -1073,7 +1072,7 @@ private fun ProfileCard(
     profileTheme: com.nuvio.tv.domain.model.AppTheme? = null,
     onFocused: () -> Unit,
     onClick: () -> Unit,
-    onLongPress: () -> Unit
+    onLongPress: (() -> Unit)?
 ) {
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
@@ -1124,6 +1123,7 @@ private fun ProfileCard(
                 if (it.isFocused) onFocused()
             }
             .onPreviewKeyEvent { event ->
+                if (onLongPress == null) return@onPreviewKeyEvent false
                 val native = event.nativeKeyEvent
                 if (native.action == AndroidKeyEvent.ACTION_DOWN) {
                     if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
@@ -1192,31 +1192,6 @@ private fun ProfileCard(
                     avatarImageUrl = avatarImageUrl
                 )
             }
-
-            if (profile.isPrimary) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .offset(x = NuvioTheme.spacing.xxs, y = NuvioTheme.spacing.hairline)
-                        .size(if (compact) 22.dp else 26.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFFFB300), CircleShape)
-                        .border(
-                            width = NuvioTheme.spacing.xxs,
-                            color = NuvioTheme.colors.Background,
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "\u2605",
-                        color = Color.White,
-                        fontSize = if (compact) 12.sp else 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
         }
 
         Spacer(
@@ -1239,22 +1214,6 @@ private fun ProfileCard(
             overflow = TextOverflow.Ellipsis
         )
 
-        Spacer(modifier = Modifier.height(ProfileSelectionSpacing.NameToMeta))
-
-        Box(
-            modifier = Modifier.height(ProfileSelectionSpacing.MetaSlotHeight),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            if (profile.isPrimary) {
-                Text(
-                    text = stringResource(R.string.profile_selection_primary_badge),
-                    color = Color(0xFFFFB300),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.8.sp
-                )
-            }
-        }
     }
 }
 

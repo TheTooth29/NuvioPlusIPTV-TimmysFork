@@ -62,7 +62,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Brush
+import com.nuvio.tv.ui.theme.flickShoBackground
 import androidx.compose.ui.zIndex
 import com.nuvio.tv.R
 import androidx.tv.material3.Border
@@ -702,16 +702,16 @@ fun ModernHomeContent(
     val screenHeight = localConfiguration.screenHeightDp.dp
 
     val homepageBackground = if (rowsOnlyHomepage) {
-        Modifier.background(Brush.verticalGradient(listOf(Color(0xFF142638), Color(0xFF0B151F), Color(0xFF060B10))))
+        Modifier.background(flickShoBackground())
     } else Modifier.background(NuvioTheme.colors.Background)
     Box(modifier = Modifier.fillMaxSize().then(homepageBackground)) {
         if (rowsOnlyHomepage) {
             androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(com.nuvio.tv.R.drawable.timio_wordmark),
-                contentDescription = "TIMIO",
+                painter = androidx.compose.ui.res.painterResource(com.nuvio.tv.R.drawable.flicksho_logo),
+                contentDescription = "flickSHO",
                 modifier = Modifier.align(Alignment.TopEnd)
                     .padding(top = 10.dp, end = 32.dp)
-                    .then(Modifier.size(width = 180.dp, height = 44.dp))
+                    .size(width = 88.dp, height = 64.dp)
                     .zIndex(2f)
             )
         }

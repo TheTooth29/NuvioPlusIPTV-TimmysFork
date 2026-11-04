@@ -1,6 +1,8 @@
 package com.nuvio.tv.ui.theme
 
 import androidx.annotation.DrawableRes
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import com.nuvio.tv.R
 import com.nuvio.tv.domain.model.AppTheme
 
@@ -14,3 +16,7 @@ val AppTheme.brandWordmarkResource: Int
         AppTheme.GRAPHITE -> R.drawable.app_logo_wordmark_graphite
         else -> R.drawable.app_logo_wordmark
     }
+
+internal fun flickShoBackground(): Brush = Brush.verticalGradient(
+    listOf(Color(0xFF142638), Color(0xFF0B151F), Color(0xFF060B10))
+)
