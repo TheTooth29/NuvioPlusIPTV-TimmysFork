@@ -144,6 +144,8 @@ private object ProfileSelectionSpacing {
     val CompactFocusedOuterAvatarSize = 104.dp
     val AvatarToName = NuvioTheme.spacing.md
     val CompactAvatarToName = 10.dp
+    val NameToMeta = NuvioTheme.spacing.sm
+    val MetaSlotHeight = NuvioTheme.spacing.lg
     val EditorPanelMaxWidth = 980.dp
     val EditorPanelGap = 28.dp
     val EditorPreviewWidth = 280.dp
