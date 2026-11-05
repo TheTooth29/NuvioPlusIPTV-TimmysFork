@@ -20,11 +20,11 @@ for key, expected in {"continue_watching": "CONTINUE WATCHING", "upcoming_sectio
 
 require("app/build.gradle.kts",
         'buildConfigField("String", "GITHUB_OWNER", "\\\"TheTooth29\\\"")',
-        'buildConfigField("String", "GITHUB_REPO", "\\\"NuvioPlusIPTV-TimmysFork\\\"")')
+        'buildConfigField("String", "GITHUB_REPO", "\\\"flickSHO\\\"")')
 require("app/src/main/java/com/nuvio/tv/ui/screens/home/ModernHomeContent.kt",
         "val collectionHero = activeCarouselItemState.value?.payload as? ModernPayload.CollectionFolder",
         "!collectionHero.heroBackdropUrl.isNullOrBlank()",
-        "!collectionHero.heroVideoUrl.isNullOrBlank()", "if (showHeroMedia) {")
+        "!collectionHero.heroVideoUrl.isNullOrBlank()", "if (!rowsOnlyHomepage && showHeroMedia) {")
 for workflow in [".github/workflows/pr-full-debug-build.yml", ".github/workflows/livetv-build.yml"]:
     require(workflow, "secrets.NUVIO_BACKEND_URL", "secrets.NUVIO_BACKEND_KEY", "secrets.TMDB_API_KEY",
             "add NUVIO_SUPABASE_URL", "add NUVIO_SUPABASE_ANON_KEY", "add TMDB_API_KEY")
