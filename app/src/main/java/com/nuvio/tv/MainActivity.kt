@@ -448,6 +448,7 @@ open class MainActivity : ComponentActivity() {
             var startupSession by remember { mutableIntStateOf(0) }
             // Triggered immediately on profile click (before system confirms selection).
             var splashTriggered by remember { mutableStateOf(false) }
+            var skipSplashAfterProfileSelection by rememberSaveable { mutableStateOf(false) }
             // Overrides splash background with the currently focused profile
             // so the splash matches the profile selection background.
             var focusedSplashColor by remember { mutableStateOf<String?>(null) }
@@ -840,7 +841,7 @@ open class MainActivity : ComponentActivity() {
                         !hasSelectedProfileThisSession && (profiles.size > 1 || activeProfileHasPin)
 
                     if (shouldShowProfileSelection) {
-                        startupDestination = if (splashTriggered) StartupDestination.Loading else StartupDestination.ProfileSelection
+                        startupDestination = StartupDestination.ProfileSelection
                         ProfileSelectionScreen(
                             onProfileClicked = {
                                 splashTriggered = true
@@ -861,6 +862,7 @@ open class MainActivity : ComponentActivity() {
                                 }
                             },
                             onProfileSelected = {
+                                skipSplashAfterProfileSelection = true
                                 hasSelectedProfileThisSession = true
                                 if (authManager.authState.value is AuthState.FullAccount) {
                                     startupSyncService.requestSyncNow()
@@ -1278,6 +1280,7 @@ open class MainActivity : ComponentActivity() {
                         val handleSwitchProfile = {
                             startupSession++
                             splashTriggered = false
+                            skipSplashAfterProfileSelection = false
                             profileSwitchedManually = true
                             focusedSplashColor = null
                             focusedSplashBgUrl = null
@@ -1385,7 +1388,7 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
                     val showSplash = shouldShowStartupSplash(
-                        enabled = startupSplashEnabled,
+                        enabled = startupSplashEnabled && !skipSplashAfterProfileSelection,
                         complete = startupLoadingState.complete,
                         destination = startupDestination
                     )
