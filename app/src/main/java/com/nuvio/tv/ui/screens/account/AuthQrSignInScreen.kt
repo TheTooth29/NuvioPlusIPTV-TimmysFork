@@ -269,7 +269,7 @@ private fun AuthQrBrandPanel(
         verticalArrangement = Arrangement.Center
     ) {
         BrandWordmark(
-            contentDescription = stringResource(R.string.cd_nuvio),
+            contentDescription = "flickSHO",
             modifier = Modifier.height(60.dp),
             contentScale = ContentScale.Fit
         )
@@ -283,6 +283,13 @@ private fun AuthQrBrandPanel(
                 lineHeight = 45.sp,
                 fontWeight = FontWeight.SemiBold
             )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.flicksho_account_linking),
+            modifier = Modifier.widthIn(max = 440.dp),
+            style = MaterialTheme.typography.bodyLarge,
+            color = AuthTextPrimary
         )
         if (isSignedIn || useEmailLogin) {
             Spacer(modifier = Modifier.height(18.dp))
