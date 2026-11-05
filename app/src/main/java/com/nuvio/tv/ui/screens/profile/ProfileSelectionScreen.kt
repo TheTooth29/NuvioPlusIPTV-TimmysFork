@@ -932,7 +932,7 @@ private fun ProfileSelectionMainContent(
         Text(
             text = screenSubtitle,
             color = NuvioTheme.colors.TextSecondary,
-            fontSize = 15.sp,
+            fontSize = if (isManagementMode) 15.sp else 12.sp,
             fontWeight = FontWeight.Medium
         )
 
