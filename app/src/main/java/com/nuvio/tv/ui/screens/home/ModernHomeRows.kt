@@ -845,12 +845,9 @@ internal fun ModernRowSection(
                         val groupStart = firstOfLastFour.offset - layout.viewportStartOffset
                         val groupEnd = lastItem.offset + lastItem.size - layout.viewportStartOffset
                         val childStart = if (isRtl) containerSize - offset - childSize else offset
-                        if (groupStart >= 0 && groupEnd <= containerSize &&
-                            childStart + 1f >= groupStart && childStart + childSize <= containerSize
-                        ) {
-                            val remaining = (groupEnd + layout.afterContentPadding - containerSize)
-                                .coerceAtLeast(0f)
-                            return if (isRtl) -remaining else remaining
+                        val scrollToRowInset = groupStart - parentStartOffsetPx
+                        if (childStart + 1f >= groupStart && groupEnd - scrollToRowInset <= containerSize) {
+                            return if (isRtl) -scrollToRowInset.toFloat() else scrollToRowInset.toFloat()
                         }
                     }
                     if (isRtl) {

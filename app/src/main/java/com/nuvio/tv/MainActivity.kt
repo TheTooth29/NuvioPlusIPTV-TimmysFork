@@ -207,7 +207,6 @@ import com.nuvio.tv.ui.theme.NuvioStrokes
 import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.ui.theme.ThemeColors
 import com.nuvio.tv.ui.theme.accentBrush
-import com.nuvio.tv.ui.theme.brandWordmarkResource
 import com.nuvio.tv.ui.util.LocalFastHorizontalNavigationEnabled
 import com.nuvio.tv.ui.util.LocalRecompositionHighlighterEnabled
 import com.nuvio.tv.ui.util.rememberDrawerItemFocusRequesters
@@ -238,7 +237,6 @@ data class SplashBackground(
     val backgroundUrl: String? = null,
     val backgroundCacheKey: String? = null,
     val skipGradient: Boolean = false,
-    val brandWordmarkRes: Int? = null
 )
 val LocalSplashBackground = compositionLocalOf { SplashBackground() }
 
@@ -448,13 +446,12 @@ open class MainActivity : ComponentActivity() {
             var startupSession by remember { mutableIntStateOf(0) }
             // Triggered immediately on profile click (before system confirms selection).
             var splashTriggered by remember { mutableStateOf(false) }
-            var skipSplashAfterProfileSelection by rememberSaveable { mutableStateOf(false) }
+            var profileSelectionLoading by rememberSaveable { mutableStateOf(false) }
             // Overrides splash background with the currently focused profile
             // so the splash matches the profile selection background.
             var focusedSplashColor by remember { mutableStateOf<String?>(null) }
             var focusedSplashBgUrl by remember { mutableStateOf<String?>(null) }
             var focusedSplashCacheKey by remember { mutableStateOf<String?>(null) }
-            var focusedSplashTheme by remember { mutableStateOf<AppTheme?>(null) }
             var onboardingCompletedThisSession by remember { mutableStateOf(false) }
             var onboardingProfileSyncInProgress by remember { mutableStateOf(false) }
             val hasSeenAuthQrFlow = remember(appOnboardingDataStore) {
@@ -693,7 +690,7 @@ open class MainActivity : ComponentActivity() {
                 val splashBackground = remember(
                     profileBgSelection, profileBgCatalog, activeProfile, activeProfileId,
                     focusedSplashColor, focusedSplashBgUrl, focusedSplashCacheKey,
-                    focusedSplashTheme, splashPreferencesReady, mainUiPrefs.theme
+                    splashPreferencesReady
                 ) {
                     val bgUrl = when (profileBgSelection) {
                         is ProfileBackgroundSelection.Custom -> profileBgSelection.url
@@ -718,12 +715,6 @@ open class MainActivity : ComponentActivity() {
                             .remove("bg_url_$activeProfileId")
                             .apply()
                     }
-                    val activeTheme = mainUiPrefs.theme
-                    if (splashPreferencesReady && activeTheme != AppTheme.WHITE) {
-                        splashPrefs.edit().putString("theme_$activeProfileId", activeTheme.name).apply()
-                    } else if (splashPreferencesReady) {
-                        splashPrefs.edit().remove("theme_$activeProfileId").apply()
-                    }
                     // Fall back to cached values only on cold start (no focused override)
                     val hasFocusedOverride = focusedSplashColor != null
                     val fallbackColor = if (colorHex == null && !hasFocusedOverride) splashPrefs.getString("color_$activeProfileId", null) else null
@@ -733,12 +724,6 @@ open class MainActivity : ComponentActivity() {
                     val resolvedBgUrl = if (hasFocusedOverride) focusedSplashBgUrl else (bgUrl ?: fallbackBg)
                     val skipGradient = !hasFocusedOverride && resolvedBgUrl == null &&
                         profileBgSelection is ProfileBackgroundSelection.Catalog
-                    // Resolve branded logo: focused theme (profile screen) > active theme > cached theme > default
-                    val resolvedTheme = focusedSplashTheme
-                        ?: activeTheme.takeIf { splashPreferencesReady }
-                        ?: splashPrefs.getString("theme_$activeProfileId", null)
-                            ?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
-                        ?: AppTheme.WHITE
                     SplashBackground(
                         profileColorHex = if (hasFocusedOverride) focusedSplashColor else (colorHex ?: fallbackColor),
                         backgroundUrl = resolvedBgUrl,
@@ -749,8 +734,7 @@ open class MainActivity : ComponentActivity() {
                             is ProfileBackgroundSelection.Custom -> "custom-profile-background-${profileBgSelection.url}"
                             null -> null
                         },
-                        skipGradient = skipGradient,
-                        brandWordmarkRes = resolvedTheme.brandWordmarkResource
+                        skipGradient = skipGradient
                     )
                 }
                 CompositionLocalProvider(
@@ -856,13 +840,8 @@ open class MainActivity : ComponentActivity() {
                                     focusedSplashCacheKey = cacheKey
                                 }
                             },
-                            onProfileThemeFocused = { theme ->
-                                if (!splashTriggered) {
-                                    focusedSplashTheme = theme
-                                }
-                            },
                             onProfileSelected = {
-                                skipSplashAfterProfileSelection = true
+                                profileSelectionLoading = true
                                 hasSelectedProfileThisSession = true
                                 if (authManager.authState.value is AuthState.FullAccount) {
                                     startupSyncService.requestSyncNow()
@@ -1280,12 +1259,11 @@ open class MainActivity : ComponentActivity() {
                         val handleSwitchProfile = {
                             startupSession++
                             splashTriggered = false
-                            skipSplashAfterProfileSelection = false
+                            profileSelectionLoading = false
                             profileSwitchedManually = true
                             focusedSplashColor = null
                             focusedSplashBgUrl = null
                             focusedSplashCacheKey = null
-                            focusedSplashTheme = null
                             hasSelectedProfileThisSession = false
                         }
                         Box(modifier = Modifier.fillMaxSize()) {
@@ -1388,7 +1366,7 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
                     val showSplash = shouldShowStartupSplash(
-                        enabled = startupSplashEnabled && !skipSplashAfterProfileSelection,
+                        enabled = startupSplashEnabled || profileSelectionLoading,
                         complete = startupLoadingState.complete,
                         destination = startupDestination
                     )
@@ -1403,7 +1381,6 @@ open class MainActivity : ComponentActivity() {
                             focusedSplashColor = null
                             focusedSplashBgUrl = null
                             focusedSplashCacheKey = null
-                            focusedSplashTheme = null
                         }
                     }
                     if (splashAlpha > 0f) {
@@ -1412,7 +1389,7 @@ open class MainActivity : ComponentActivity() {
                             profileBackgroundUrl = splashBackground.backgroundUrl,
                             backgroundCacheKey = splashBackground.backgroundCacheKey,
                             skipGradient = splashBackground.skipGradient,
-                            brandWordmarkRes = splashBackground.brandWordmarkRes,
+                            useFlickShoBackground = profileSelectionLoading,
                             modifier = Modifier.graphicsLayer { alpha = splashAlpha }
                         )
                     }
