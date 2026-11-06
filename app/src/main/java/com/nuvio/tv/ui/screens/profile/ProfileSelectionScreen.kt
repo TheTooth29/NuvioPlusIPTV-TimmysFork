@@ -127,8 +127,8 @@ import kotlinx.coroutines.delay
 private object ProfileSelectionSpacing {
     val ScreenPaddingHorizontal = NuvioTheme.spacing.huge
     val ScreenPaddingVertical = NuvioTheme.spacing.xxxl
-    val LogoHeight = 100.dp
-    val LogoToHeading = 28.dp
+    val LogoHeight = 124.dp
+    val LogoToHeading = 20.dp
     val HeadingToSubheading = NuvioTheme.spacing.md
     val GridItemGap = 28.dp
     val CompactGridItemGap = NuvioTheme.spacing.md
@@ -932,7 +932,7 @@ private fun ProfileSelectionMainContent(
         Text(
             text = screenSubtitle,
             color = NuvioTheme.colors.TextSecondary,
-            fontSize = 18.sp,
+            fontSize = if (isManagementMode) 15.sp else 12.sp,
             fontWeight = FontWeight.Medium
         )
 

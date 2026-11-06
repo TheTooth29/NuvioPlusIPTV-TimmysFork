@@ -1,0 +1,15 @@
+<resources>
+    <item type="drawable" name="app_logo_mark">@drawable/flicksho_logo</item>
+    <item type="drawable" name="app_logo_wordmark">@drawable/flicksho_logo</item>
+    <item type="drawable" name="app_logo_wordmark_arctic_blue">@drawable/flicksho_logo</item>
+    <item type="drawable" name="app_logo_wordmark_gold">@drawable/flicksho_logo</item>
+    <item type="drawable" name="app_logo_wordmark_graphite">@drawable/flicksho_logo</item>
+    <item type="drawable" name="app_logo_wordmark_jade">@drawable/flicksho_logo</item>
+    <item type="drawable" name="app_logo_wordmark_rose_gold">@drawable/flicksho_logo</item>
+    <item type="drawable" name="livetv_wordmark_iptv">@drawable/flicksho_logo</item>
+    <item type="drawable" name="livetv_wordmark_iptv_arctic_blue">@drawable/flicksho_logo</item>
+    <item type="drawable" name="livetv_wordmark_iptv_gold">@drawable/flicksho_logo</item>
+    <item type="drawable" name="livetv_wordmark_iptv_graphite">@drawable/flicksho_logo</item>
+    <item type="drawable" name="livetv_wordmark_iptv_jade">@drawable/flicksho_logo</item>
+    <item type="drawable" name="livetv_wordmark_iptv_rose_gold">@drawable/flicksho_logo</item>
+</resources>

@@ -1,13 +1,16 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="200dp" android:height="144dp"
     android:viewportWidth="200" android:viewportHeight="144">
-    <!-- Open TV outline -->
+    <!-- TV frame centered on the viewer's head -->
+    <group android:translateX="-8">
     <path android:strokeColor="#A49BE8" android:strokeWidth="4"
         android:strokeLineCap="round"
         android:pathData="M67,70 H49 Q43,70 43,64 V14 Q43,8 49,8 H99" />
     <path android:strokeColor="#79C5ED" android:strokeWidth="4"
         android:strokeLineCap="round"
         android:pathData="M99,8 H147 Q153,8 153,14 V44 M115,70 H137" />
+
+    </group>
 
     <!-- Viewer and raised arm -->
     <path android:fillColor="#F3F5FA"

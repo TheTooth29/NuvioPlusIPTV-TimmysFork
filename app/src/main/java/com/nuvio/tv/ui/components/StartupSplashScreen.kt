@@ -18,10 +18,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.nuvio.tv.ui.theme.brandWordmarkResource
+import com.nuvio.tv.ui.theme.flickShoBackground
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -35,7 +33,7 @@ fun StartupSplashScreen(
     profileBackgroundUrl: String?,
     backgroundCacheKey: String? = null,
     skipGradient: Boolean = false,
-    brandWordmarkRes: Int? = null,
+    useFlickShoBackground: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val avatarColor = remember(profileColorHex) {
@@ -44,8 +42,8 @@ fun StartupSplashScreen(
         } ?: NuvioPrimitives.blue500
     }
 
-    Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
-        if (!profileBackgroundUrl.isNullOrBlank()) {
+    Box(modifier = modifier.fillMaxSize().background(flickShoBackground())) {
+        if (!useFlickShoBackground && !profileBackgroundUrl.isNullOrBlank()) {
             val imageData: Any = if (profileBackgroundUrl.startsWith("file:")) {
                 java.io.File(java.net.URI(profileBackgroundUrl))
             } else {
@@ -65,7 +63,7 @@ fun StartupSplashScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-        } else if (!skipGradient) {
+        } else if (!useFlickShoBackground && !skipGradient) {
             val baseBg = Color(0xFF121212)
             val baseBgElevated = NuvioPrimitives.neutral875
             val gradientTop = lerp(baseBgElevated, avatarColor, 0.3f)
@@ -103,23 +101,12 @@ fun StartupSplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Live TV fork: "Nuvio + IPTV" logo (in the theme's colors) and what the app does.
             BrandWordmark(
-                modifier = Modifier.height(48.dp),
-                contentDescription = com.nuvio.tv.livetv.branding.LiveTvBranding.APP_NAME,
-                drawableOverride = com.nuvio.tv.livetv.branding.LiveTvBranding.iptvWordmark(
-                    brandWordmarkRes ?: NuvioTheme.currentTheme.brandWordmarkResource
-                )
+                modifier = Modifier.height(124.dp),
+                contentDescription = "flickSHO",
+                drawableOverride = R.drawable.flicksho_logo
             )
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(14.dp))
-            androidx.tv.material3.Text(
-                text = com.nuvio.tv.livetv.branding.LiveTvBranding.TAGLINE,
-                color = Color(0xFFC8CDD7).copy(alpha = 0.85f),
-                fontSize = 16.sp
-            )
-            // Clear room between the tagline and the loading circle (they never overlap: they're
-            // stacked, and this gap keeps them visually apart too).
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             LoadingIndicator(modifier = Modifier.size(NuvioTheme.spacing.xxxl))
         }
     }
