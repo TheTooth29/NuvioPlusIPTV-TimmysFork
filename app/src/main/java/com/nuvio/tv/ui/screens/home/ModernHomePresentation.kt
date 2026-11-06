@@ -336,28 +336,9 @@ internal fun buildModernHomePresentation(
 }
 
 private fun resolveVisibleHomeRows(input: ModernHomePresentationInput): List<HomeRow> {
-    if (input.homeRows.isNotEmpty()) {
-        val latestCatalogByKey = input.catalogRows.associateBy(::catalogRowKey)
-        return input.homeRows.mapNotNull { homeRow ->
-            when (homeRow) {
-                is HomeRow.Catalog -> {
-                    val latest = latestCatalogByKey[catalogRowKey(homeRow.row)] ?: homeRow.row
-                    latest.takeIf { it.items.isNotEmpty() }?.let(HomeRow::Catalog)
-                }
-                is HomeRow.CollectionRow -> {
-                    homeRow.collection.takeIf(Collection::hasVisibleFolders)?.let(HomeRow::CollectionRow)
-                }
-                is HomeRow.PlaceholderCatalog -> {
-                    // Keep placeholder rows as-is — they'll be rendered as shimmer skeletons
-                    homeRow
-                }
-            }
-        }
-    }
-
-    return input.catalogRows
-        .filter { it.items.isNotEmpty() }
-        .map(HomeRow::Catalog)
+    // An empty collection list must stay empty, rather than falling back to addon rows.
+    return visibleCollectionHomeRows(input.homeRows)
+        .filter { it.collection.hasVisibleFolders() }
 }
 
 private fun collectionRowKey(collection: Collection): String {

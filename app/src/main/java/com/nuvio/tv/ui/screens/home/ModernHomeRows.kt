@@ -215,6 +215,7 @@ private fun ModernContinueWatchingRowItem(
         cardStyle = continueWatchingCardStyle,
         cornerRadius = continueWatchingCornerRadius,
         homepageTileBorder = LocalHomepageTileStyling.current,
+        focusGlowEnabled = !LocalFastScrollActive.current.value,
         isFocused = isCardFocused,
         modifier = modifier
             .focusRequester(requester)
