@@ -9,6 +9,43 @@ import org.junit.Assert.assertSame
 import org.junit.Test
 
 class HomeRowVisibilityTest {
+    private fun loadedCatalog() = CatalogRow(
+        addonId = "aiometadata", addonName = "AIOMetaData",
+        addonBaseUrl = "https://example.test", catalogId = "movies",
+        catalogName = "Movies", type = ContentType.MOVIE,
+        items = listOf(com.nuvio.tv.domain.model.MetaPreview(
+            id = "tt123", type = ContentType.MOVIE, name = "Test movie",
+            poster = null, posterShape = com.nuvio.tv.domain.model.PosterShape.POSTER,
+            background = null, logo = null, description = null, releaseInfo = null,
+            imdbRating = null, genres = emptyList()
+        ))
+    )
+
+    @Test
+    fun `modern collection folder keeps loaded catalogs while root Home hides them`() {
+        val catalog = loadedCatalog()
+        val input = ModernHomePresentationInput(
+            homeRows = listOf(HomeRow.Catalog(catalog)), catalogRows = listOf(catalog),
+            continueWatchingItems = emptyList(), upcomingItems = emptyList(),
+            useLandscapePosters = false, showCatalogTypeSuffix = true,
+            showFullReleaseDate = true, showImdbRatings = false, localeTag = "en"
+        )
+        assertEquals(listOf(HomeRow.Catalog(catalog)), resolveVisibleHomeRows(input))
+        assertEquals(emptyList<HomeRow>(), resolveVisibleHomeRows(input.copy(hideStandaloneCatalogRows = true)))
+        assertEquals(listOf(HomeRow.Catalog(catalog)), resolveVisibleHomeRows(input.copy(homeRows = emptyList())))
+        assertEquals(emptyList<HomeRow>(), resolveVisibleHomeRows(input.copy(homeRows = emptyList(), hideStandaloneCatalogRows = true)))
+    }
+
+    @Test
+    fun `classic collection folder keeps catalogs while root Home hides them`() {
+        val catalog = loadedCatalog()
+        val folder = HomeUiState(homeRows = listOf(HomeRow.Catalog(catalog)), catalogRows = listOf(catalog))
+        assertEquals(folder.homeRows, resolveClassicHomeRows(folder))
+        assertEquals(emptyList<HomeRow>(), resolveClassicHomeRows(folder.copy(hideStandaloneCatalogRows = true)))
+        assertEquals(folder.homeRows, resolveClassicHomeRows(folder.copy(homeRows = emptyList())))
+        assertEquals(emptyList<HomeRow>(), resolveClassicHomeRows(folder.copy(homeRows = emptyList(), hideStandaloneCatalogRows = true)))
+    }
+
     @Test
     fun `addon rows and future catalogs stay hidden while collection order and data survive`() {
         val collections = listOf("DISCOVER", "STREAMING PLATFORMS", "DECADES").map {
